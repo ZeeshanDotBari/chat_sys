@@ -68,9 +68,34 @@ export async function POST(req: NextRequest) {
         { status: 400 }
       );
     }
-    console.error('Registration error:', error);
+    
+    // Log detailed error for debugging
+    console.error('Registration error:', {
+      message: error.message,
+      name: error.name,
+      stack: error.stack,
+    });
+    
+    // Provide more specific error messages
+    if (error.message?.includes('MONGODB_URI')) {
+      return NextResponse.json(
+        { error: 'Database configuration error. Please contact support.' },
+        { status: 500 }
+      );
+    }
+    
+    if (error.name === 'MongoServerError' || error.name === 'MongooseError') {
+      return NextResponse.json(
+        { error: 'Database connection error. Please try again later.' },
+        { status: 500 }
+      );
+    }
+    
     return NextResponse.json(
-      { error: 'Failed to register user' },
+      { 
+        error: 'Failed to register user',
+        details: process.env.NODE_ENV === 'development' ? error.message : undefined
+      },
       { status: 500 }
     );
   }

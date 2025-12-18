@@ -1,4 +1,6 @@
-const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3000';
+// Use relative URLs by default (empty string), or allow override via env var
+// In production, this will use the same domain, in dev it can be overridden
+const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || '';
 
 export class ApiClient {
   private baseURL: string;
@@ -29,7 +31,14 @@ export class ApiClient {
       headers,
     });
 
-    const data = await response.json();
+    let data;
+    const contentType = response.headers.get('content-type');
+    if (contentType && contentType.includes('application/json')) {
+      data = await response.json();
+    } else {
+      const text = await response.text();
+      throw new Error(text || `HTTP error! status: ${response.status}`);
+    }
 
     if (!response.ok) {
       throw new Error(data.error || `HTTP error! status: ${response.status}`);
