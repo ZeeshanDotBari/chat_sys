@@ -1,6 +1,6 @@
 import mongoose, { Schema, Document } from 'mongoose';
 
-export interface IChat extends Document {
+export interface IChat extends Omit<Document, '_id'> {
   _id: string;
   participants: mongoose.Types.ObjectId[];
   type: 'direct' | 'group';

@@ -235,7 +235,7 @@ export async function encryptMessage(
     return {
       encryptedData: arrayBufferToBase64(encryptedData),
       encryptedKey: arrayBufferToBase64(encryptedKey),
-      iv: arrayBufferToBase64(iv),
+      iv: arrayBufferToBase64(iv.buffer),
     };
   } catch (error: any) {
     console.error('Error encrypting message:', error);

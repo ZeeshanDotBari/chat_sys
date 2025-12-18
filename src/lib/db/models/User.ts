@@ -1,6 +1,6 @@
 import mongoose, { Schema, Document } from 'mongoose';
 
-export interface IUser extends Document {
+export interface IUser extends Omit<Document, '_id'> {
   _id: string;
   username: string;
   email: string;

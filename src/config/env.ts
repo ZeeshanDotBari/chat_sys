@@ -9,9 +9,11 @@ const envSchema = z.object({
   NEXT_PUBLIC_SOCKET_URL: z.string().default('http://localhost:3000'),
 });
 
-let cachedEnv: z.infer<typeof envSchema> | null = null;
+type EnvType = z.infer<typeof envSchema>;
 
-function getEnv() {
+let cachedEnv: EnvType | null = null;
+
+function getEnv(): EnvType {
   if (!cachedEnv) {
     cachedEnv = envSchema.parse({
       MONGODB_URI: process.env.MONGODB_URI,
@@ -25,10 +27,27 @@ function getEnv() {
   return cachedEnv;
 }
 
-export const env = new Proxy({} as z.infer<typeof envSchema>, {
-  get: (_, prop) => {
-    const value = getEnv()[prop as keyof z.infer<typeof envSchema>];
-    return value;
-  },
-}) as z.infer<typeof envSchema>;
+// Create a typed env object with getters
+class EnvProxy {
+  get MONGODB_URI(): string {
+    return getEnv().MONGODB_URI;
+  }
+  get JWT_SECRET(): string {
+    return getEnv().JWT_SECRET;
+  }
+  get JWT_REFRESH_SECRET(): string {
+    return getEnv().JWT_REFRESH_SECRET;
+  }
+  get JWT_EXPIRES_IN(): string {
+    return getEnv().JWT_EXPIRES_IN;
+  }
+  get JWT_REFRESH_EXPIRES_IN(): string {
+    return getEnv().JWT_REFRESH_EXPIRES_IN;
+  }
+  get NEXT_PUBLIC_SOCKET_URL(): string {
+    return getEnv().NEXT_PUBLIC_SOCKET_URL;
+  }
+}
+
+export const env = new EnvProxy() as EnvType;
 
