@@ -26,6 +26,9 @@ function getEnv() {
 }
 
 export const env = new Proxy({} as z.infer<typeof envSchema>, {
-  get: (_, prop) => getEnv()[prop as keyof typeof cachedEnv],
-});
+  get: (_, prop) => {
+    const value = getEnv()[prop as keyof z.infer<typeof envSchema>];
+    return value;
+  },
+}) as z.infer<typeof envSchema>;
 
