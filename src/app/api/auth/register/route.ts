@@ -91,13 +91,20 @@ export async function POST(req: NextRequest) {
       );
     }
     
-    return NextResponse.json(
-      { 
-        error: 'Failed to register user',
-        details: process.env.NODE_ENV === 'development' ? error.message : undefined
-      },
-      { status: 500 }
-    );
+    // Return detailed error in development, generic in production
+    const errorResponse: any = {
+      error: 'Failed to register user',
+    };
+    
+    // Always include error details for debugging (we can remove later)
+    errorResponse.details = error.message;
+    errorResponse.errorName = error.name;
+    
+    if (process.env.NODE_ENV === 'development') {
+      errorResponse.stack = error.stack;
+    }
+    
+    return NextResponse.json(errorResponse, { status: 500 });
   }
 }
 
